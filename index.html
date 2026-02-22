@@ -17,17 +17,14 @@
         
         .intro { background: #f8fafc; border-left: 5px solid var(--red); padding: 20px; border-radius: 12px; margin-bottom: 30px; font-size: 0.95rem; color: #475569; }
         
-        /* Formulários */
         .form-group { margin-bottom: 30px; }
         label { display: block; font-weight: 600; margin-bottom: 10px; color: var(--blue); font-size: 1.05rem; }
         input[type="text"], select, textarea { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; }
         input:focus, select:focus, textarea:focus { border-color: var(--blue); }
         
-        /* Sliders */
         .range-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; margin-top: 5px; font-weight: 500;}
         input[type="range"] { width: 100%; cursor: pointer; }
 
-        /* Questões */
         .option-card { 
             background: #fff; border: 2px solid #f1f5f9; padding: 16px; margin: 10px 0; 
             border-radius: 12px; cursor: pointer; border-left: 4px solid #cbd5e1; font-size: 0.95rem;
@@ -41,7 +38,6 @@
         }
         .btn-primary:hover { background: #162a55; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(29,54,109,0.2); }
 
-        /* Admin Section */
         .admin-section { margin-top: 30px; }
         .table-wrapper { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 12px; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -49,13 +45,11 @@
         td { padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 0.95rem; }
         tr:hover td { background: #f8fafc; }
 
-        /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left:0; top:0; width:100%; height:100%; background: rgba(15,23,42,0.8); backdrop-filter: blur(4px); }
         .modal-content { background: white; margin: 2% auto; padding: 40px; width: 95%; max-width: 800px; border-radius: 20px; max-height: 90vh; overflow-y: auto; position: relative; }
         .close-modal { position: absolute; right: 25px; top: 25px; font-size: 30px; cursor: pointer; color: #94a3b8; line-height: 1; text-decoration: none;}
         .close-modal:hover { color: var(--red); }
         
-        /* Modal Detalhes - Gráficos e Respostas */
         .rank-item { margin-bottom: 15px; }
         .rank-bar-bg { background: #f1f5f9; height: 12px; border-radius: 6px; margin-top: 6px; overflow: hidden; }
         .rank-bar-fill { height: 100%; background: var(--blue); border-radius: 6px; }
@@ -68,7 +62,6 @@
         .hidden { display: none; }
         .step { animation: fadeIn 0.4s ease-out; }
 
-        /* Rodapé e Botão WhatsApp */
         footer { margin-top: auto; padding-top: 40px; text-align: center; font-size: 0.9rem; color: #64748b; }
         .credits-link { color: var(--blue); text-decoration: none; font-weight: 600; cursor: pointer; }
         .credits-link:hover { text-decoration: underline; color: var(--red); }
@@ -79,6 +72,20 @@
             margin-top: 25px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
         }
         .btn-whatsapp:hover { background: #1ebc5a; transform: translateY(-2px); color: white; }
+
+        #game-trigger {
+            position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px;
+            background: var(--red); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; cursor: pointer; box-shadow: 0 4px 15px rgba(227, 29, 26, 0.4);
+            z-index: 999; transition: transform 0.3s;
+        }
+        #game-trigger:hover { transform: scale(1.1) rotate(10deg); }
+
+        #gameCanvas {
+            background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; 
+            max-width: 100%; display: block; margin: 0 auto; touch-action: none; cursor: crosshair;
+        }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -167,13 +174,31 @@
     Créditos: <a class="credits-link" onclick="openCredits()">Guilherme Ferreira Bento (clique aqui para me conhecer)</a>
 </footer>
 
+<div id="game-trigger" onclick="openGame()" title="Jornada do Dev">🎮</div>
+
+<div id="gameModal" class="modal">
+    <div class="modal-content" style="max-width: 550px; text-align: center;">
+        <span class="close-modal" onclick="closeGame()">&times;</span>
+        <h2 style="color:var(--blue); font-size: 2rem; margin-top: 0;">Jornada do Diploma 🚀</h2>
+        <p style="font-size: 0.95rem; color: #64748b; margin-bottom: 20px;">Mova o mouse ou toque na tela para guiar o Dev. <br> Pegue Café ☕ e Ideias 💡. Desvie dos Bugs 🐛!</p>
+        
+        <canvas id="gameCanvas" width="450" height="300"></canvas>
+        
+        <div style="background:#e2e8f0; height:20px; border-radius:10px; margin:20px 0; overflow:hidden;">
+            <div id="game-progress" style="width:0%; height:100%; background:var(--red); transition:width 0.3s ease-out;"></div>
+        </div>
+        <p><b id="game-status" style="font-size: 1.1rem; color: var(--blue);">Pronto para começar?</b></p>
+        <button class="btn-primary" id="btn-start-game" onclick="startGame()" style="font-size: 1.1rem; padding: 15px;">Iniciar Jornada 💻</button>
+    </div>
+</div>
+
 <div id="creditsModal" class="modal">
     <div class="modal-content" style="max-width: 650px; text-align: center; padding: 50px 30px;">
         <span class="close-modal" onclick="closeCredits()">&times;</span>
         <h2 style="color: var(--blue); margin-top: 0; font-size: 2rem;">Prazer 👋</h2>
         
         <div style="text-align: justify; color: var(--text); font-size: 1rem; line-height: 1.7; margin-top: 25px;">
-            <p>Olá, tudo bem? Sou o Guilherme Bento, estamos na mesma turma e no mesmo barco, hehe. Muito prazer em te conhecer! Tenho 22 anos e curto bastante videogames. Se quiser me adicionar, minha ID do PlayStation, gamertag do Xbox e ID da Steam é <b>Smilerapz</b>. Também sou fã de animes, séries, filmes, música, futebol e várias outras coisas que rendem boas conversas.</p>
+            <p>Olá, tudo bem? Sou o Guilherme Bento, estamos na mesma turma e no mesmo barco, hehe. Muito prazer em te conhecer! Tenho 22 anos e curto bastante videogames. Se quiser me adicionar, minha ID do PlayStation, gamertag do Xbox e ID da Steam é <b>Smilerapz</b>. Também sou fã de animes, séries, filmes, música, futebol e várias outras coisas que rendem boas conversas. E claro, namoro a menina mais incrível do mundo ❤️.</p>
             
             <p>Sou graduado em <b>Tecnologia em Marketing Digital</b>, especialista em <b>Gestão da Tecnologia da Informação</b> e em <b>Ciência de Dados e Inteligência Artificial</b>. Já atuo faz pouco tempo na área e hoje trabalho como <b>Analista de Sistemas Jr.</b> em uma faculdade no centro de São Paulo.</p>
             
@@ -315,7 +340,6 @@
     let userChoices = [];
     let globalData = [];
 
-    // Gerar HTML das Questões
     const qArea = document.getElementById('questions-area');
     perguntas.forEach((perg, i) => {
         let html = `<div class="form-group"><label>${perg.q}</label>`;
@@ -395,25 +419,21 @@
         const dbLvl = parseInt(row[5]);
         const hrs = parseInt(row[6]);
 
-        // 1. Somar os Pesos
         choices.forEach((optIdx, qIdx) => {
             if(optIdx === null || optIdx === undefined) return;
             const weights = perguntas[qIdx].options[optIdx].p;
             for(let k=0; k<6; k++) scores[keys[k]] += weights[k];
         });
 
-        // 2. Multiplicadores de Habilidade
         if(progLvl >= 7) { scores["Dev Back-end"] += 15; scores["Dev C"] += 15; }
         if(dbLvl >= 7) { scores["DBA / Dados"] += 20; }
         
-        // 3. Multiplicadores de Curva de Aprendizado (Horas disponíveis)
         if(progLvl < 4 && hrs >= 9) {
             scores["Dev Back-end"] += 10; scores["Dev C"] += 10;
         } else if (progLvl < 4 && hrs <= 4) {
             scores["Analista Requisitos"] += 15; scores["Dev Front-end"] += 10;
         }
 
-        // 4. Achar o Vencedor Principal (Excluindo o Líder)
         const entries = Object.entries(scores).filter(e => e[0] !== 'Líder');
         const mainMatch = entries.reduce((a, b) => a[1] > b[1] ? a : b);
 
@@ -430,7 +450,6 @@
         document.getElementById('m-prog').innerText = `Prog: ${row[4]}/10`;
         document.getElementById('m-db').innerText = `Banco: ${row[5]}/10`;
 
-        // Gerar Barras de Porcentagem
         const sorted = Object.entries(analysis.scores).sort((a,b) => b[1] - a[1]);
         const maxScore = sorted[0][1] || 1; 
 
@@ -448,7 +467,6 @@
         });
         document.getElementById('m-stats').innerHTML = statsHtml;
 
-        // Gerar Histórico de Respostas Detalhado
         let answersHtml = '';
         perguntas.forEach((perg, i) => {
             const userAnsIdx = choices[i];
@@ -469,9 +487,134 @@
     function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
     function openCredits() { document.getElementById('creditsModal').style.display = 'block'; }
     function closeCredits() { document.getElementById('creditsModal').style.display = 'none'; }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let gameAnim;
+    let player = { x: 210, y: 250, size: 35 };
+    let items = [];
+    let score = 0;
+    let isPlaying = false;
+
+    function getPointerPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        let clientX = e.clientX;
+        if (e.touches && e.touches.length > 0) clientX = e.touches[0].clientX;
+        let scaleX = canvas.width / rect.width;
+        let pos = (clientX - rect.left) * scaleX - player.size / 2;
+        return Math.max(0, Math.min(pos, canvas.width - player.size));
+    }
+
+    canvas.addEventListener('mousemove', (e) => { if(isPlaying) player.x = getPointerPos(e); });
+    canvas.addEventListener('touchmove', (e) => { 
+        if(isPlaying) {
+            player.x = getPointerPos(e);
+            e.preventDefault();
+        }
+    }, {passive: false});
+
+    function startGame() {
+        if(isPlaying) return;
+        isPlaying = true;
+        score = 0;
+        items = [];
+        player.x = canvas.width / 2 - player.size / 2;
+        document.getElementById('btn-start-game').style.display = 'none';
+        updateGameStatus();
+        gameLoop();
+    }
+
+    function spawnItem() {
+        if(Math.random() < 0.02) {
+            const types = ['☕', '💡', '🐛', '🐛'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            items.push({
+                x: Math.random() * (canvas.width - 30),
+                y: -30,
+                type: type,
+                speed: 1 + Math.random() * 1.5
+            });
+        }
+    }
+
+    function gameLoop() {
+        if(!isPlaying) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.font = "35px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText("👨‍💻", player.x, player.y + 30);
+
+        for (let i = 0; i < items.length; i++) {
+            let item = items[i];
+            item.y += item.speed;
+            
+            ctx.font = "25px Arial";
+            ctx.fillText(item.type, item.x, item.y + 25);
+
+            if (item.y + 25 >= player.y && item.y <= player.y + 35 && item.x + 25 >= player.x && item.x <= player.x + 35) {
+                if(item.type === '🐛') score = Math.max(0, score - 15);
+                else if(item.type === '☕') score += 5;
+                else if(item.type === '💡') score += 10;
+                
+                items.splice(i, 1);
+                i--;
+                updateGameStatus();
+                continue;
+            }
+
+            if (item.y > canvas.height) {
+                items.splice(i, 1);
+                i--;
+            }
+        }
+        
+        spawnItem();
+
+        if (score >= 100) {
+            isPlaying = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#1d366d";
+            ctx.font = "bold 26px Poppins";
+            ctx.textAlign = "center";
+            ctx.fillText("🎉 VOCÊ SE FORMOU! 🎉", canvas.width/2, canvas.height/2);
+            document.getElementById('btn-start-game').innerText = "Jogar Novamente";
+            document.getElementById('btn-start-game').style.display = 'inline-block';
+            document.getElementById('game-status').innerText = "Diploma conquistado! O mercado te espera!";
+            document.getElementById('game-progress').style.width = '100%';
+            return;
+        }
+
+        gameAnim = requestAnimationFrame(gameLoop);
+    }
+
+    function updateGameStatus() {
+        document.getElementById('game-progress').style.width = Math.min(score, 100) + '%';
+        let status = "";
+        if(score < 20) status = "1º Semestre: Aprendendo Lógica...";
+        else if(score < 40) status = "3º Semestre: Estruturas de Dados.";
+        else if(score < 60) status = "5º Semestre: Banco de Dados.";
+        else if(score < 80) status = "7º Semestre: Foco no Projeto!";
+        else status = "Último Semestre: Desespero do TCC!";
+        document.getElementById('game-status').innerText = status;
+    }
+
+    function openGame() {
+        document.getElementById('gameModal').style.display = 'block';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "16px Poppins";
+        ctx.textAlign = "center";
+        ctx.fillText("Clique em Iniciar Jornada", canvas.width/2, canvas.height/2);
+    }
+
+    function closeGame() {
+        document.getElementById('gameModal').style.display = 'none';
+        isPlaying = false;
+        cancelAnimationFrame(gameAnim);
+        document.getElementById('btn-start-game').style.display = 'inline-block';
+    }
 </script>
 
 </body>
 </html>
-
-
