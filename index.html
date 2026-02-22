@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Alocação Estratégica - UNINOVE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --blue: #1d366d; --red: #e31d1a; --bg: #f4f7fa; --card: #ffffff; --text: #334155; }
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: 0.2s ease; }
+        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text); }
+        
+        .container { max-width: 900px; margin: 0 auto; background: var(--card); border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .logo-container { text-align: center; margin-bottom: 25px; }
+        .logo-container img { max-width: 200px; }
+        h1 { color: var(--blue); text-align: center; font-size: 1.8rem; margin-top: 0; }
+        
+        .intro { background: #f8fafc; border-left: 5px solid var(--red); padding: 20px; border-radius: 12px; margin-bottom: 30px; font-size: 0.95rem; color: #475569; }
+        
+        /* Formulários */
+        .form-group { margin-bottom: 30px; }
+        label { display: block; font-weight: 600; margin-bottom: 10px; color: var(--blue); font-size: 1.05rem; }
+        input[type="text"], select, textarea { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--blue); }
+        
+        /* Sliders */
+        .range-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; margin-top: 5px; font-weight: 500;}
+        input[type="range"] { width: 100%; cursor: pointer; }
+
+        /* Questões */
+        .option-card { 
+            background: #fff; border: 2px solid #f1f5f9; padding: 16px; margin: 10px 0; 
+            border-radius: 12px; cursor: pointer; border-left: 4px solid #cbd5e1; font-size: 0.95rem;
+        }
+        .option-card:hover { border-color: #93c5fd; transform: translateX(5px); background: #f8fafc; }
+        .option-card.selected { background: var(--blue); color: white; border-color: var(--blue); border-left-color: var(--red); }
+
+        .btn-primary { 
+            background: var(--blue); color: white; border: none; padding: 18px; 
+            border-radius: 12px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1.1rem; margin-top: 10px;
+        }
+        .btn-primary:hover { background: #162a55; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(29,54,109,0.2); }
+
+        /* Admin Section */
+        .admin-section { margin-top: 30px; }
+        .table-wrapper { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: #f8fafc; padding: 16px; color: var(--blue); font-size: 0.9rem; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 0.95rem; }
+        tr:hover td { background: #f8fafc; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left:0; top:0; width:100%; height:100%; background: rgba(15,23,42,0.8); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 2% auto; padding: 40px; width: 95%; max-width: 800px; border-radius: 20px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .close-modal { position: absolute; right: 25px; top: 25px; font-size: 30px; cursor: pointer; color: #94a3b8; line-height: 1; }
+        .close-modal:hover { color: var(--red); }
+        
+        /* Modal Detalhes - Gráficos e Respostas */
+        .rank-item { margin-bottom: 15px; }
+        .rank-bar-bg { background: #f1f5f9; height: 12px; border-radius: 6px; margin-top: 6px; overflow: hidden; }
+        .rank-bar-fill { height: 100%; background: var(--blue); border-radius: 6px; }
+        
+        .answer-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-bottom: 12px; }
+        .answer-box h4 { margin: 0 0 8px 0; color: var(--blue); font-size: 0.9rem; }
+        .answer-box p { margin: 0; font-size: 0.95rem; font-weight: 500; color: var(--text); }
+        
+        .badge { background: var(--blue); color: white; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; }
+        .hidden { display: none; }
+        .step { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-container"><img src="logo_uninove.png" alt="UNINOVE"></div>
+
+    <div id="quiz-flow">
+        <div id="step-1" class="step">
+            <h1>Descubra sua Função na Equipe</h1>
+            <div class="intro">
+                Fique tranquilo(a)! Este teste tem perguntas sobre coisas do seu dia a dia. A ideia é descobrir o seu perfil natural (como você organiza as coisas, resolve problemas ou trabalha em grupo) para acharmos a área da tecnologia que mais combina com você!
+            </div>
+            <div class="form-group">
+                <label>Seu Nome Completo *</label>
+                <input type="text" id="nome" placeholder="Digite seu nome" required>
+            </div>
+            <div class="form-group">
+                <label>Um breve resumo sobre você:</label>
+                <textarea id="desc" rows="2" placeholder="O que você gosta de fazer? Quais seus hobbies?"></textarea>
+            </div>
+            <button class="btn-primary" onclick="next(2)">Avançar</button>
+        </div>
+
+        <div id="step-2" class="step hidden">
+            <div class="form-group">
+                <label>Seu nível geral de uso de Computadores (0 a 10)</label>
+                <input type="range" id="lvl-info" min="0" max="10" value="5">
+                <div class="range-labels"><span>Básico</span><span>Intermediário</span><span>Avançado</span></div>
+            </div>
+            <div class="form-group">
+                <label>Seu nível atual em Programação (0 a 10)</label>
+                <input type="range" id="lvl-prog" min="0" max="10" value="0">
+                <div class="range-labels"><span>Nunca vi</span><span>Estou aprendendo</span><span>Já programo</span></div>
+            </div>
+            <div class="form-group">
+                <label>Seu nível em Banco de Dados (0 a 10)</label>
+                <input type="range" id="lvl-db" min="0" max="10" value="0">
+                <div class="range-labels"><span>Não sei o que é</span><span>Conheço tabelas</span><span>Domino</span></div>
+            </div>
+            <div class="form-group">
+                <label>Quantas horas por semana você pode dedicar ao projeto fora da aula?</label>
+                <select id="horas">
+                    <option value="1">0 a 1 hora (Tempo muito corrido)</option>
+                    <option value="3">2 a 4 horas (Um pouco de tempo)</option>
+                    <option value="6" selected>5 a 7 horas (Tempo razoável)</option>
+                    <option value="9">8 a 10 horas (Bastante tempo)</option>
+                    <option value="15">Mais de 11 horas (Disponibilidade total)</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="next(3)">Ir para o Questionário</button>
+        </div>
+
+        <div id="step-3" class="step hidden">
+            <div id="questions-area"></div>
+            <button class="btn-primary" id="btn-envio" onclick="enviarTudo()">Finalizar e Enviar Respostas</button>
+        </div>
+
+        <div id="step-success" class="step hidden" style="text-align:center; padding: 40px 0;">
+            <h1 style="color:var(--red); font-size: 2.5rem; margin-bottom: 10px;">Feito! 🎉</h1>
+            <p style="font-size: 1.1rem; color: #475569;">Suas respostas foram salvas no sistema da equipe.</p>
+            <p>Com base nisso, vamos montar um grupo incrível onde cada um faz o que tem mais facilidade!</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-section container" style="background:transparent; box-shadow:none; padding:0;">
+    <button onclick="openAdmin()" style="border:none; color:#94a3b8; cursor:pointer; font-size: 0.85rem; background:none; text-decoration: underline;">Acessar Área Administrativa</button>
+    <div id="admin-panel" class="hidden" style="background:white; padding:30px; border-radius:20px; margin-top:20px; border: 1px solid #e2e8f0;">
+        <h2 style="color:var(--blue); margin-top:0;">Resultados da Equipe</h2>
+        <p style="font-size:0.9rem; color:#64748b; margin-bottom: 20px;">Clique na linha do aluno para ver o relatório completo e todas as respostas.</p>
+        <div class="table-wrapper">
+            <table id="admin-table">
+                <thead>
+                    <tr><th>Aluno</th><th>Área Recomendada</th><th>Tempo Disponível</th></tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 id="m-nome" style="color:var(--blue); font-size: 1.8rem; margin:0 0 5px 0;">Nome</h2>
+        <p id="m-desc" style="color:#64748b; font-style: italic; margin-top:0; margin-bottom: 20px;"></p>
+        
+        <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+            <span class="badge" id="m-info"></span>
+            <span class="badge" id="m-prog"></span>
+            <span class="badge" id="m-db"></span>
+        </div>
+
+        <h3 style="border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; color: var(--blue);">Análise de Afinidade</h3>
+        <div id="m-stats" style="margin-bottom: 40px;"></div>
+
+        <h3 style="border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; color: var(--blue);">Histórico de Respostas</h3>
+        <div id="m-answers"></div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVi-ryWwuSbPsuOj1kcq77degvkJsOV4qTrpqLC8GJY0PmcZYIrCD6hOkAzJazWw-i5A/exec';
+
+    // 10 PERGUNTAS GERAIS DA VIDA (Matriz: [Backend, Front, C, DBA, Requisitos, Lider])
+    const perguntas = [
+        {
+            q: "1. Se você fosse ajudar a organizar uma festa de aniversário, o que preferiria fazer?",
+            options: [
+                { t: "Fazer os cálculos de quanto vai custar e dividir as despesas.", p: [8, 0, 10, 0, 0, 0] },
+                { t: "Cuidar da decoração, das cores e de deixar o ambiente bonito.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Fazer a lista de convidados e organizar quem traz o quê.", p: [0, 0, 0, 10, 2, 0] },
+                { t: "Criar o convite com os textos e explicar como chegar ao local.", p: [0, 0, 0, 0, 10, 4] },
+                { t: "Coordenar tudo para garantir que a festa comece na hora certa.", p: [0, 0, 0, 0, 2, 10] }
+            ]
+        },
+        {
+            q: "2. Quando você vai montar um móvel novo (tipo um guarda-roupa):",
+            options: [
+                { t: "Olho as dobradiças, os encaixes e tento entender a lógica por trás.", p: [8, 0, 10, 0, 0, 0] },
+                { t: "Já fico imaginando como ele vai combinar com a parede e os enfeites.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Antes de tudo, separo todos os parafusos por tamanho e tipo.", p: [2, 0, 0, 10, 0, 0] },
+                { t: "Pego o manual, leio passo a passo e vou guiando quem está montando.", p: [0, 0, 0, 0, 10, 4] },
+                { t: "Organizo quem vai segurar a porta e quem vai parafusar para ir mais rápido.", p: [0, 0, 0, 0, 0, 10] }
+            ]
+        },
+        {
+            q: "3. Em um trabalho em grupo da escola/faculdade, você geralmente assume a parte de:",
+            options: [
+                { t: "Fazer as pesquisas difíceis e resolver os cálculos complicados.", p: [10, 0, 8, 0, 0, 0] },
+                { t: "Montar os slides do PowerPoint, escolhendo imagens e fontes legais.", p: [0, 10, 0, 0, 2, 0] },
+                { t: "Juntar as partes de todo mundo e padronizar o documento no Word.", p: [0, 0, 0, 10, 4, 0] },
+                { t: "Escrever a introdução, revisar os textos e apresentar lá na frente.", p: [0, 0, 0, 0, 10, 6] },
+                { t: "Cobrar a parte de cada um para ninguém entregar atrasado.", p: [0, 0, 0, 0, 2, 10] }
+            ]
+        },
+        {
+            q: "4. Quando você cozinha uma receita nova e complexa:",
+            options: [
+                { t: "Sigo as medidas exatas e a temperatura como se fosse uma fórmula.", p: [6, 0, 10, 0, 0, 0] },
+                { t: "Me preocupo muito com a apresentação e beleza do prato no final.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Pico e separo todos os ingredientes em potinhos antes de ligar o fogo.", p: [0, 0, 0, 10, 0, 0] },
+                { t: "Gosto de anotar o passo a passo no meu caderno para não esquecer.", p: [0, 0, 0, 2, 10, 0] },
+                { t: "Fico supervisionando a cozinha enquanto peço ajuda aos outros.", p: [0, 0, 0, 0, 0, 10] }
+            ]
+        },
+        {
+            q: "5. Na hora de jogar um jogo de tabuleiro ou videogame novo:",
+            options: [
+                { t: "Tento achar falhas nas regras ou criar estratégias super lógicas para vencer.", p: [8, 0, 10, 0, 0, 0] },
+                { t: "Fico admirando os gráficos, os personagens e o mapa do jogo.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Gosto de gerenciar o inventário, os recursos e os itens coletados.", p: [2, 0, 0, 10, 0, 0] },
+                { t: "Leio a história do jogo, as missões e gosto de explicar para os amigos.", p: [0, 0, 0, 0, 10, 3] },
+                { t: "Crio um clã/grupo e decido para onde a equipe vai na partida.", p: [0, 0, 0, 0, 0, 10] }
+            ]
+        },
+        {
+            q: "6. Se você fosse o diretor de um filme de ficção/detetive, no que focaria mais?",
+            options: [
+                { t: "No mistério científico e em como a máquina do tempo funciona de verdade.", p: [10, 0, 8, 0, 0, 0] },
+                { t: "Na fotografia, efeitos especiais e nos figurinos impecáveis.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Em organizar a linha do tempo e as pistas para não ter furos na história.", p: [0, 0, 0, 10, 2, 0] },
+                { t: "No roteiro bem escrito e nos diálogos perfeitos dos personagens.", p: [0, 0, 0, 0, 10, 2] },
+                { t: "Em liderar os atores e a equipe técnica para tudo fluir bem no set.", p: [0, 0, 0, 0, 0, 10] }
+            ]
+        },
+        {
+            q: "7. Quando algo dá errado e quebra na sua casa (ex: uma TV ou encanamento):",
+            options: [
+                { t: "Abro para tentar achar o problema mecânico/elétrico e consertar sozinho.", p: [10, 0, 10, 0, 0, 0] },
+                { t: "Me incomodo se o conserto deixar o local feio ou com remendos visíveis.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Verifico onde está a caixa de ferramentas e a planta da casa primeiro.", p: [0, 0, 0, 10, 0, 0] },
+                { t: "Pesquiso na internet ou leio manuais sobre como outras pessoas resolveram.", p: [0, 0, 0, 0, 10, 0] },
+                { t: "Ligo rápido para um profissional e gerencio a visita dele.", p: [0, 0, 0, 0, 2, 10] }
+            ]
+        },
+        {
+            q: "8. Seu quarto ou ambiente de estudo costuma ser:",
+            options: [
+                { t: "Prático. Só tem o necessário para eu agir rápido, sem firulas.", p: [8, 0, 8, 0, 0, 0] },
+                { t: "Personalizado e bonito, com posters, luzes ou coisas que combinam.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Categorizado. Gavetas separadas, livros por tamanho ou assunto.", p: [0, 0, 0, 10, 0, 0] },
+                { t: "Cheio de post-its, cadernos de anotações e quadros de avisos.", p: [0, 0, 0, 2, 10, 0] },
+                { t: "É o local onde meus amigos/irmãos se reúnem e eu doto as regras.", p: [0, 0, 0, 0, 0, 10] }
+            ]
+        },
+        {
+            q: "9. Se você fosse escrever um livro, que tipo seria?",
+            options: [
+                { t: "Um manual técnico ou um livro de quebra-cabeças lógicos.", p: [8, 0, 10, 0, 0, 0] },
+                { t: "Um livro de arte, design ou uma revista em quadrinhos lindíssima.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Uma enciclopédia catalogando centenas de fatos e dados históricos.", p: [0, 0, 0, 10, 0, 0] },
+                { t: "Um guia de sobrevivência com explicações claras para ajudar os outros.", p: [0, 0, 0, 0, 10, 3] },
+                { t: "Um livro de autoajuda sobre como liderar pessoas e ter sucesso.", p: [0, 0, 0, 0, 0, 10] }
+            ]
+        },
+        {
+            q: "10. Como seus amigos costumam descrever você?",
+            options: [
+                { t: "Racional, lógico e bom em resolver pepinos difíceis.", p: [10, 0, 10, 0, 0, 0] },
+                { t: "Criativo, com bom gosto e que repara nos detalhes visuais.", p: [0, 10, 0, 0, 0, 0] },
+                { t: "Metódico, organizado e que nunca perde as coisas.", p: [0, 0, 0, 10, 0, 0] },
+                { t: "Conselheiro, fala bem e sabe explicar as coisas com clareza.", p: [0, 0, 0, 0, 10, 5] },
+                { t: "O líder natural que toma a frente e decide os rolês.", p: [0, 0, 0, 0, 0, 10] }
+            ]
+        }
+    ];
+
+    let userChoices = [];
+    let globalData = [];
+
+    // Gerar HTML das Questões
+    const qArea = document.getElementById('questions-area');
+    perguntas.forEach((perg, i) => {
+        let html = `<div class="form-group"><label>${perg.q}</label>`;
+        perg.options.forEach((opt, j) => {
+            html += `<div class="option-card" onclick="selectOpt(${i}, ${j}, this)" data-q="${i}">${opt.t}</div>`;
+        });
+        qArea.innerHTML += html + `</div>`;
+    });
+
+    function selectOpt(qIdx, optIdx, el) {
+        document.querySelectorAll(`[data-q="${qIdx}"]`).forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        userChoices[qIdx] = optIdx;
+    }
+
+    function next(s) {
+        if(s === 2 && !document.getElementById('nome').value) return alert("Por favor, informe seu nome.");
+        document.querySelectorAll('.step').forEach(d => d.classList.add('hidden'));
+        document.getElementById(`step-${s}`).classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    async function enviarTudo() {
+        if(userChoices.filter(x => x !== undefined).length < 10) return alert("Por favor, responda todas as 10 perguntas!");
+        const btn = document.getElementById('btn-envio');
+        btn.disabled = true; btn.innerText = "Calculando seu perfil...";
+
+        const payload = {
+            nome: document.getElementById('nome').value,
+            desc: document.getElementById('desc').value,
+            info: document.getElementById('lvl-info').value,
+            prog: document.getElementById('lvl-prog').value,
+            db: document.getElementById('lvl-db').value,
+            horas: document.getElementById('horas').value,
+            detalhes: JSON.stringify(userChoices)
+        };
+
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+            next('success');
+        } catch(e) { alert("Erro ao enviar dados. Tente novamente."); btn.disabled = false; }
+    }
+
+    function openAdmin() {
+        if(prompt("Digite a senha de acesso:") === 'UWNJ6v3CLwCg26E3TWP4') {
+            document.getElementById('admin-panel').classList.remove('hidden');
+            loadTable();
+        }
+    }
+
+    async function loadTable() {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = "<tr><td colspan='3'>Carregando dados...</td></tr>";
+        
+        const res = await fetch(SCRIPT_URL);
+        globalData = await res.json();
+        tbody.innerHTML = "";
+        
+        globalData.forEach((row, i) => {
+            const analysis = calculateScores(row);
+            const tr = document.createElement('tr');
+            tr.onclick = () => showDetails(i, analysis);
+            tr.innerHTML = `
+                <td><b>${row[1]}</b></td>
+                <td><span class="badge" style="background:var(--red)">${analysis.main}</span></td>
+                <td>${row[6]} hrs/semana</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function calculateScores(row) {
+        let scores = { "Dev Back-end": 0, "Dev Front-end": 0, "Dev C": 0, "DBA / Dados": 0, "Analista Requisitos": 0, "Líder": 0 };
+        const keys = Object.keys(scores);
+        const choices = JSON.parse(row[8]);
+        const progLvl = parseInt(row[4]);
+        const dbLvl = parseInt(row[5]);
+        const hrs = parseInt(row[6]);
+
+        // 1. Somar os Pesos
+        choices.forEach((optIdx, qIdx) => {
+            if(optIdx === null || optIdx === undefined) return;
+            const weights = perguntas[qIdx].options[optIdx].p;
+            for(let k=0; k<6; k++) scores[keys[k]] += weights[k];
+        });
+
+        // 2. Multiplicadores de Habilidade
+        if(progLvl >= 7) { scores["Dev Back-end"] += 15; scores["Dev C"] += 15; }
+        if(dbLvl >= 7) { scores["DBA / Dados"] += 20; }
+        
+        // 3. Multiplicadores de Curva de Aprendizado (Horas disponíveis)
+        if(progLvl < 4 && hrs >= 9) {
+            scores["Dev Back-end"] += 10; scores["Dev C"] += 10;
+        } else if (progLvl < 4 && hrs <= 4) {
+            scores["Analista Requisitos"] += 15; scores["Dev Front-end"] += 10;
+        }
+
+        // 4. Achar o Vencedor Principal (Excluindo o Líder)
+        const entries = Object.entries(scores).filter(e => e[0] !== 'Líder');
+        const mainMatch = entries.reduce((a, b) => a[1] > b[1] ? a : b);
+
+        return { scores, main: mainMatch[0] };
+    }
+
+    function showDetails(idx, analysis) {
+        const row = globalData[idx];
+        const choices = JSON.parse(row[8]);
+        
+        document.getElementById('m-nome').innerText = row[1];
+        document.getElementById('m-desc').innerText = row[2] ? `"${row[2]}"` : "";
+        document.getElementById('m-info').innerText = `Info: ${row[3]}/10`;
+        document.getElementById('m-prog').innerText = `Prog: ${row[4]}/10`;
+        document.getElementById('m-db').innerText = `Banco: ${row[5]}/10`;
+
+        // Gerar Barras de Porcentagem
+        const sorted = Object.entries(analysis.scores).sort((a,b) => b[1] - a[1]);
+        const maxScore = sorted[0][1] || 1; // Prevenir divisão por zero
+
+        let statsHtml = '';
+        sorted.forEach(([area, val]) => {
+            let perc = Math.min(100, Math.round((val / maxScore) * 100));
+            let color = area === 'Líder' ? '#94a3b8' : 'var(--blue)'; // Lider em cor neutra
+            statsHtml += `
+                <div class="rank-item">
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600;">
+                        <span>${area}</span><span style="color:${color}">${perc}%</span>
+                    </div>
+                    <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${perc}%; background:${color}"></div></div>
+                </div>`;
+        });
+        document.getElementById('m-stats').innerHTML = statsHtml;
+
+        // Gerar Histórico de Respostas Detalhado
+        let answersHtml = '';
+        perguntas.forEach((perg, i) => {
+            const userAnsIdx = choices[i];
+            const answerText = (userAnsIdx !== null && userAnsIdx !== undefined) ? perg.options[userAnsIdx].t : "Não respondeu";
+            
+            answersHtml += `
+                <div class="answer-box">
+                    <h4>${perg.q}</h4>
+                    <p>R: ${answerText}</p>
+                </div>
+            `;
+        });
+        document.getElementById('m-answers').innerHTML = answersHtml;
+
+        document.getElementById('detailModal').style.display = 'block';
+    }
+
+    function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+</script>
+
+</body>
+</html>
