@@ -8,9 +8,9 @@
     <style>
         :root { --blue: #1d366d; --red: #e31d1a; --bg: #f4f7fa; --card: #ffffff; --text: #334155; }
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: 0.2s ease; }
-        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text); }
+        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
         
-        .container { max-width: 900px; margin: 0 auto; background: var(--card); border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .container { max-width: 900px; margin: 0 auto; background: var(--card); border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; }
         .logo-container { text-align: center; margin-bottom: 25px; }
         .logo-container img { max-width: 200px; }
         h1 { color: var(--blue); text-align: center; font-size: 1.8rem; margin-top: 0; }
@@ -52,7 +52,7 @@
         /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left:0; top:0; width:100%; height:100%; background: rgba(15,23,42,0.8); backdrop-filter: blur(4px); }
         .modal-content { background: white; margin: 2% auto; padding: 40px; width: 95%; max-width: 800px; border-radius: 20px; max-height: 90vh; overflow-y: auto; position: relative; }
-        .close-modal { position: absolute; right: 25px; top: 25px; font-size: 30px; cursor: pointer; color: #94a3b8; line-height: 1; }
+        .close-modal { position: absolute; right: 25px; top: 25px; font-size: 30px; cursor: pointer; color: #94a3b8; line-height: 1; text-decoration: none;}
         .close-modal:hover { color: var(--red); }
         
         /* Modal Detalhes - Gráficos e Respostas */
@@ -67,6 +67,19 @@
         .badge { background: var(--blue); color: white; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; }
         .hidden { display: none; }
         .step { animation: fadeIn 0.4s ease-out; }
+
+        /* Rodapé e Botão WhatsApp */
+        footer { margin-top: auto; padding-top: 40px; text-align: center; font-size: 0.9rem; color: #64748b; }
+        .credits-link { color: var(--blue); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .credits-link:hover { text-decoration: underline; color: var(--red); }
+        
+        .btn-whatsapp {
+            display: inline-block; background: #25D366; color: white; padding: 14px 28px; 
+            border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.05rem;
+            margin-top: 25px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+        .btn-whatsapp:hover { background: #1ebc5a; transform: translateY(-2px); color: white; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -134,7 +147,7 @@
     </div>
 </div>
 
-<div class="admin-section container" style="background:transparent; box-shadow:none; padding:0;">
+<div class="admin-section container" style="background:transparent; box-shadow:none; padding:0; margin-top: 10px;">
     <button onclick="openAdmin()" style="border:none; color:#94a3b8; cursor:pointer; font-size: 0.85rem; background:none; text-decoration: underline;">Acessar Área Administrativa</button>
     <div id="admin-panel" class="hidden" style="background:white; padding:30px; border-radius:20px; margin-top:20px; border: 1px solid #e2e8f0;">
         <h2 style="color:var(--blue); margin-top:0;">Resultados da Equipe</h2>
@@ -147,6 +160,29 @@
                 <tbody id="table-body"></tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<footer>
+    Créditos: <a class="credits-link" onclick="openCredits()">Guilherme Ferreira Bento (clique aqui para me conhecer)</a>
+</footer>
+
+<div id="creditsModal" class="modal">
+    <div class="modal-content" style="max-width: 650px; text-align: center; padding: 50px 30px;">
+        <span class="close-modal" onclick="closeCredits()">&times;</span>
+        <h2 style="color: var(--blue); margin-top: 0; font-size: 2rem;">Prazer, Guilherme Bento! 👋</h2>
+        
+        <div style="text-align: justify; color: var(--text); font-size: 1rem; line-height: 1.7; margin-top: 25px;">
+            <p>Olá, tudo bem? Sou o Guilherme Bento, estamos na mesma turma e no mesmo barco, hehe. Muito prazer em te conhecer! Tenho 22 anos e curto bastante videogames. Se quiser me adicionar, minha ID do PlayStation, gamertag do Xbox e ID da Steam é <b>Smilerapz</b>. Também sou fã de animes, séries, filmes, música, futebol e várias outras coisas que rendem boas conversas.</p>
+            
+            <p>Sou graduado em <i>Tecnologia em Marketing Digital</i>, especialista em <i>Gestão da Tecnologia da Informação</i> e em <i>Ciência de Dados e Inteligência Artificial</i>. Já atuo faz pouco tempo na área e hoje trabalho como <b>Analista de Sistemas Jr.</b> em uma faculdade no centro de São Paulo.</p>
+            
+            <p>Meu objetivo aqui na Uninove é buscar a base teórica e prática que não tive no início da minha jornada tech. Voltei justamente para construir esse solo firme e, claro, aproveitar para fazer networking, trocar ideias sempre agrega muito. Então, se quiser bater um papo, é só me chamar.</p>
+        </div>
+
+        <a href="https://wa.me/5517996358942?text=Oi,%20Guilherme.%20Tudo%20bem?%20Sou%20da%20UNINOVE" target="_blank" class="btn-whatsapp">
+            📱 Chamar no WhatsApp
+        </a>
     </div>
 </div>
 
@@ -173,7 +209,6 @@
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVi-ryWwuSbPsuOj1kcq77degvkJsOV4qTrpqLC8GJY0PmcZYIrCD6hOkAzJazWw-i5A/exec';
 
-    // 10 PERGUNTAS GERAIS DA VIDA (Matriz: [Backend, Front, C, DBA, Requisitos, Lider])
     const perguntas = [
         {
             q: "1. Se você fosse ajudar a organizar uma festa de aniversário, o que preferiria fazer?",
@@ -397,12 +432,12 @@
 
         // Gerar Barras de Porcentagem
         const sorted = Object.entries(analysis.scores).sort((a,b) => b[1] - a[1]);
-        const maxScore = sorted[0][1] || 1; // Prevenir divisão por zero
+        const maxScore = sorted[0][1] || 1; 
 
         let statsHtml = '';
         sorted.forEach(([area, val]) => {
             let perc = Math.min(100, Math.round((val / maxScore) * 100));
-            let color = area === 'Líder' ? '#94a3b8' : 'var(--blue)'; // Lider em cor neutra
+            let color = area === 'Líder' ? '#94a3b8' : 'var(--blue)'; 
             statsHtml += `
                 <div class="rank-item">
                     <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600;">
@@ -432,6 +467,8 @@
     }
 
     function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+    function openCredits() { document.getElementById('creditsModal').style.display = 'block'; }
+    function closeCredits() { document.getElementById('creditsModal').style.display = 'none'; }
 </script>
 
 </body>
