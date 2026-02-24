@@ -110,6 +110,10 @@
                 <input type="text" id="telefone" placeholder="(11) 99999-9999" maxlength="15" required>
             </div>
             <div class="form-group">
+                <label>Que horas você consegue chegar na aula de Quinta-feira? *</label>
+                <input type="text" id="horario_quinta" placeholder="Ex: 19:00 ou Depende do trânsito..." required>
+            </div>
+            <div class="form-group">
                 <label>Um breve resumo sobre você:</label>
                 <textarea id="desc" rows="2" placeholder="O que você gosta de fazer? Quais seus hobbies?"></textarea>
             </div>
@@ -220,7 +224,8 @@
         <span class="close-modal" onclick="closeModal()">&times;</span>
         <h2 id="m-nome" style="color:var(--blue); font-size: 1.8rem; margin:0 0 5px 0;">Nome</h2>
         <p id="m-desc" style="color:#64748b; font-style: italic; margin-top:0; margin-bottom: 10px;"></p>
-        <p id="m-telefone" style="color:var(--blue); font-weight: 600; margin-top:0; margin-bottom: 20px;"></p>
+        <p id="m-telefone" style="color:var(--blue); font-weight: 600; margin-top:0; margin-bottom: 5px;"></p>
+        <p id="m-horario" style="color:var(--blue); font-weight: 600; margin-top:0; margin-bottom: 20px;"></p>
         
         <div style="display: flex; gap: 15px; margin-bottom: 30px;">
             <span class="badge" id="m-info"></span>
@@ -369,6 +374,7 @@
         if(s === 2) {
             if(!document.getElementById('nome').value) return alert("Por favor, informe seu nome.");
             if(!document.getElementById('telefone').value || document.getElementById('telefone').value.length < 14) return alert("Por favor, informe um telefone válido.");
+            if(!document.getElementById('horario_quinta').value) return alert("Por favor, informe o horário de chegada na quinta-feira.");
         }
         document.querySelectorAll('.step').forEach(d => d.classList.add('hidden'));
         document.getElementById(`step-${s}`).classList.remove('hidden');
@@ -382,7 +388,7 @@
 
         const payload = {
             nome: document.getElementById('nome').value,
-            desc: document.getElementById('telefone').value + "|||" + document.getElementById('desc').value,
+            desc: document.getElementById('telefone').value + "|||" + document.getElementById('horario_quinta').value + "|||" + document.getElementById('desc').value,
             info: document.getElementById('lvl-info').value,
             prog: document.getElementById('lvl-prog').value,
             db: document.getElementById('lvl-db').value,
@@ -459,12 +465,23 @@
         
         let rawDesc = row[2] ? row[2].toString() : "";
         let partes = rawDesc.split("|||");
-        let tel = partes.length > 1 ? partes[0] : "";
-        let descReal = partes.length > 1 ? partes[1] : rawDesc;
+        let tel = "";
+        let hor = "";
+        let descReal = rawDesc;
+
+        if (partes.length >= 3) {
+            tel = partes[0];
+            hor = partes[1];
+            descReal = partes.slice(2).join("|||");
+        } else if (partes.length === 2) {
+            tel = partes[0];
+            descReal = partes[1];
+        }
 
         document.getElementById('m-nome').innerText = row[1];
         document.getElementById('m-desc').innerText = descReal ? `"${descReal}"` : "";
-        document.getElementById('m-telefone').innerText = tel ? `📱 ${tel}` : "";
+        document.getElementById('m-telefone').innerText = tel ? `📱 Telefone: ${tel}` : "";
+        document.getElementById('m-horario').innerText = hor ? `🕒 Chega quinta às: ${hor}` : "";
         document.getElementById('m-info').innerText = `Info: ${row[3]}/10`;
         document.getElementById('m-prog').innerText = `Prog: ${row[4]}/10`;
         document.getElementById('m-db').innerText = `Banco: ${row[5]}/10`;
